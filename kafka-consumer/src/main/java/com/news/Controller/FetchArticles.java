@@ -1,0 +1,13 @@
+package com.news.Controller;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class FetchArticles {
+
+    @GetMapping("/fetchArticles")
+    public void sendArticles(){
+
+    }
+}
