@@ -1,9 +1,7 @@
-package com.news.ResponseClasses;
+package com.news.Model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class Article {
+public class RedisArticle {
     private String title;
     private String description;
     private String link;

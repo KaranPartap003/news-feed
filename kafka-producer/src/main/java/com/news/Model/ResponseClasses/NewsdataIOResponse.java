@@ -1,5 +1,6 @@
-package com.news.ResponseClasses;
+package com.news.Model.ResponseClasses;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.news.Model.Article;
 
 import java.util.List;
 

@@ -2,8 +2,8 @@ package com.news;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.news.ResponseClasses.Article;
-import com.news.ResponseClasses.NewsdataIOResponse;
+import com.news.Model.Article;
+import com.news.Model.ResponseClasses.NewsdataIOResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ public class NewsProducer {
     private String apiKey;
 
     @Autowired
-    KafkaTemplate<String, String> kafkaTemplate;
+    KafkaTemplate<String, Article> kafkaTemplate;
     Set<String> processedArticles = new HashSet<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(NewsProducer.class);
     RestTemplate restTemplate = new RestTemplate();
@@ -34,11 +34,10 @@ public class NewsProducer {
 
     public void sendMessage() throws JsonProcessingException {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("https://newsdata.io/api/1/latest?&language=en")
-                                        .queryParam("apikey", apiKey);
+                                    .queryParam("apikey", apiKey);
         if(nextPage != null)
             builder.queryParam("page", nextPage);
         String URL = builder.toUriString();
-        LOGGER.info(URL);
         try{
             //fetch Json as a string
             String jsonResponse = restTemplate.getForObject(URL, String.class);
@@ -49,13 +48,8 @@ public class NewsProducer {
                 for(Article article: results){
                     String articleTitle = article.getTitle().substring(0,10);
                     if (!processedArticles.contains(articleTitle)) {
-                        // Format and send data
-                        String data = String.format("Title: %s, Description: %s, Link: %s",
-                                articleTitle,
-                                article.getDescription(),
-                                article.getLink());
-                        kafkaTemplate.send("all", data);
-                        LOGGER.info(data);
+                        kafkaTemplate.send("all", article);
+                        LOGGER.info(article.toString());
                         // Add article to the set to avoid duplicates
                         processedArticles.add(articleTitle.substring(0,10));
                     }

@@ -1,4 +1,4 @@
-package com.news;
+package com.news.Configuration;
 
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.context.annotation.Bean;
