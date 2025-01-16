@@ -66,22 +66,4 @@ public class RedisConfig {
                 .vectorAlgorithm(RedisVectorStore.Algorithm.FLAT)
                 .build();
     }
-
-    @Bean
-    public ConsumerFactory<String, RedisArticle> consumerFactory(){
-        Map<String, Object> prop = new HashMap<>();
-        prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, server);
-        prop.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        prop.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        return new DefaultKafkaConsumerFactory<>(prop);
-    }
-
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, RedisArticle> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, RedisArticle> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory());
-        factory.setBatchListener(true); // Enable batch listening
-        return factory;
-    }
 }
