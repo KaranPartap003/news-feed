@@ -1,19 +1,23 @@
 package com.news.Controller;
 
-import com.news.ConsumeArticles;
+import com.news.Model.Article;
+import com.news.Model.RedisRequest;
+import com.news.Service.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/news-feed")
+@RequestMapping("/api/news-feed")
 public class FetchArticles {
 
     @Autowired
-    private ConsumeArticles consumeArticles;
-    @GetMapping("/fetchArticles")
-    public String sendArticles(){
-        return consumeArticles.sendArticles().toString();
+    private RedisService redisService;
+
+    @PostMapping("/fetchArticles")
+    public ResponseEntity<List<Article>> fetch(@RequestBody RedisRequest request){
+        return ResponseEntity.ok(redisService.getRelevantArticles(request));
     }
 }
