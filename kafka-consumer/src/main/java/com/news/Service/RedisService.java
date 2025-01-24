@@ -46,6 +46,7 @@ public class RedisService {
                     //returns a list<Document>
                     vectorStore.doSimilaritySearch(
                             SearchRequest.builder()
+                                    .topK(4)
                                     .query(query)
                                     .build()
                     )
@@ -54,7 +55,7 @@ public class RedisService {
         List<Article> response = results.stream()
                 .map(this::convertToRedisArticle)
                 .collect(Collectors.toList());
-        int remainingArticles = BATCH_SIZE - results.size();
+        int remainingArticles = RESPONSE_SIZE - results.size();
         if(remainingArticles > 0){
             int articlesToAdd = Math.min(remainingArticles, articlesBuffer.size());
             response.addAll(articlesBuffer.subList(0, articlesToAdd));
@@ -62,19 +63,30 @@ public class RedisService {
         return response;
     }
 
+    public List<Document> similaritySearch(String request){
+        return vectorStore.doSimilaritySearch(
+                SearchRequest
+                        .builder()
+                        .topK(4)
+                        .query(request)
+                        .build()
+        );
+    }
+
     //---------------Helper Functions-----------------//
     public void processBatch(List<Article> batch){
         // Convert articles to documents and send to Redis
         List<Document> documents = batch.stream()
+                .filter(article -> article.getTitle() != null || article.getDescription() != null)
                 .map(this::convertToDocument)
                 .collect(Collectors.toList());
         vectorStore.doAdd(documents);
     }
 
     public Document convertToDocument(Article article){
-        String content = article.getTitle() + article.getDescription();
+        String content = article.getTitle();
         Map<String, Object> metadata = new HashMap<>();
-        if(article.getLink() != null)
+        if(article.getTitle() != null)
             metadata.put("link", article.getLink());
         if(article.getDescription() != null)
             metadata.put("description", article.getDescription());
@@ -84,11 +96,11 @@ public class RedisService {
     }
 
     public Article convertToRedisArticle(Document doc){
-        String title = doc.getMetadata().getOrDefault("title", "Untitled").toString();
-        String link = doc.getMetadata().getOrDefault("link", "No Link Available").toString();
-        String description = doc.getMetadata().getOrDefault("description", "No Description Available").toString();
-
-        return new Article(title, link, description);
+        Map<String, Object> metadata = doc.getMetadata();
+        String link = (String) metadata.getOrDefault("link", "Unknown");
+        String description = (String) metadata.getOrDefault("description", "N/A");
+        String title = (String) metadata.getOrDefault("title", "unknown");
+        return new Article(title, description, link);
     }
 
 }

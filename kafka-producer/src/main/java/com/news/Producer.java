@@ -18,7 +18,7 @@ public class Producer{
     }
 
     //rate limit = 200/day
-    @Scheduled(fixedRate = 2000)
+    @Scheduled(fixedRate = 4000)
     public void fetchFromNewsDataIO() throws JsonProcessingException {
         try {
             producer.sendMessage();
