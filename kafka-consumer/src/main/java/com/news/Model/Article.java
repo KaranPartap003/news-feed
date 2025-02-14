@@ -12,11 +12,7 @@ public class Article {
 
     @Override
     public String toString() {
-        return "Article{" +
-                "title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", link='" + link + '\'' +
-                '}';
+        return STR."Article{title='\{title}\{'\''}, description='\{description}\{'\''}, link='\{link}\{'\''}\{'}'}";
     }
 
     public Article() {

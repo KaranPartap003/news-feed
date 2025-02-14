@@ -15,8 +15,13 @@ public class KafkaConfig {
     private String server;
 
     @Bean
-    public NewTopic createTopic(){
-        return TopicBuilder.name("all").build();
+    public NewTopic redisTopic(){
+        return TopicBuilder.name("redis-data").build();
+    }
+
+    @Bean
+    public NewTopic sqlTopic(){
+        return TopicBuilder.name("sql-data").build();
     }
 
 }

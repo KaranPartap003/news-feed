@@ -3,12 +3,12 @@ package com.news.Model;
 
 import java.util.List;
 
-public class RedisRequest {
+public class UserRequest {
     private List<String> userArticles;
 
-    public RedisRequest(List<String> userArticles) { this.userArticles = userArticles;}
+    public UserRequest(List<String> userArticles) { this.userArticles = userArticles;}
 
-    public RedisRequest() {}
+    public UserRequest() {}
 
     public List<String> getUserArticles() { return userArticles; }
 

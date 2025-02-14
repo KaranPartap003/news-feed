@@ -1,7 +1,7 @@
 package com.news.Service;
 
 import com.news.Model.Article;
-import com.news.Model.RedisRequest;
+import com.news.Model.UserRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
@@ -25,7 +25,8 @@ public class RedisService {
     private final int BATCH_SIZE = 10;
     private final int RESPONSE_SIZE = 10;
 
-    @KafkaListener(topics = "all", groupId = "group1")
+
+    @KafkaListener(topics = "redis-data", groupId = "group1")
     public void addArticles(Article article){
         LOGGER.info(String.format("article received : %s", article.toString()));
         articlesBuffer.add(article);
@@ -36,7 +37,7 @@ public class RedisService {
         }
     }
 
-    public List<Article> getRelevantArticles(RedisRequest request){
+    public List<Article> getRelevantArticles(UserRequest request){
         if(request.getUserArticles() == null)
             return new ArrayList<>(articlesBuffer);
         List<String> UserArticles = request.getUserArticles();
@@ -46,7 +47,7 @@ public class RedisService {
                     //returns a list<Document>
                     vectorStore.doSimilaritySearch(
                             SearchRequest.builder()
-                                    .topK(4)
+                                    .topK(2)
                                     .query(query)
                                     .build()
                     )
@@ -55,11 +56,11 @@ public class RedisService {
         List<Article> response = results.stream()
                 .map(this::convertToRedisArticle)
                 .collect(Collectors.toList());
-        int remainingArticles = RESPONSE_SIZE - results.size();
-        if(remainingArticles > 0){
-            int articlesToAdd = Math.min(remainingArticles, articlesBuffer.size());
-            response.addAll(articlesBuffer.subList(0, articlesToAdd));
-        }
+//        int remainingArticles = RESPONSE_SIZE - results.size();
+//        if(remainingArticles > 0){
+//            int articlesToAdd = Math.min(remainingArticles, articlesBuffer.size());
+//            response.addAll(articlesBuffer.subList(0, articlesToAdd));
+//        }
         return response;
     }
 
@@ -77,7 +78,7 @@ public class RedisService {
     public void processBatch(List<Article> batch){
         // Convert articles to documents and send to Redis
         List<Document> documents = batch.stream()
-                .filter(article -> article.getTitle() != null || article.getDescription() != null)
+                .filter(article -> article.getTitle() != null || article.getDescription() != null)//prob no need for this
                 .map(this::convertToDocument)
                 .collect(Collectors.toList());
         vectorStore.doAdd(documents);

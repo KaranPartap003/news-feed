@@ -3,6 +3,9 @@ package com.news;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.news.Model.Article;
+import com.news.Model.GuardianArticle;
+import com.news.Model.ResponseClasses.GuardianResponse;
+import com.news.Model.ResponseClasses.GuardianResponseData;
 import com.news.Model.ResponseClasses.NewsdataIOResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,11 +25,17 @@ import java.util.Set;
 @Service
 public class NewsProducer {
 
-    @Value("${newsdata.api.key}")
-    private String apiKey;
+    @Value("${newsdata.api-key}")
+    private String newsdataApiKey;
+
+    @Value("${guardian.api-key}")
+    private String guardianApiKey;
 
     @Autowired
-    KafkaTemplate<String, Article> kafkaTemplate;
+    KafkaTemplate<String, Article> redisArticlekafkaTemplate;
+
+    @Autowired
+    KafkaTemplate<String, GuardianArticle> guardianArticleKafkaTemplate;
 
     Set<String> processedArticles = new HashSet<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(NewsProducer.class);
@@ -34,9 +43,12 @@ public class NewsProducer {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private String nextPage = null;
 
-    public void sendMessage() throws JsonProcessingException {
+    private int currGuardianPage = 1;
+
+    //convert to webclient
+    public void sendToRedis() throws JsonProcessingException {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("https://newsdata.io/api/1/latest?&language=en")
-                                    .queryParam("apikey", apiKey);
+                                    .queryParam("apikey", newsdataApiKey);
         if(nextPage != null)
             builder.queryParam("page", nextPage);
         String URL = builder.toUriString();
@@ -48,22 +60,46 @@ public class NewsProducer {
             if(response != null && response.getResults() != null){
                 List<Article> results = response.getResults();
                 for(Article article: results){
-                    String articleTitle = article.getTitle().substring(0,10);
+                    String articleTitle = article.getTitle().substring(0,Math.min(20, article.getTitle().length()));
                     if (!processedArticles.contains(articleTitle)) {
-                        kafkaTemplate.send("all", article);
+                        redisArticlekafkaTemplate.send("redis-data", article);
                         LOGGER.info(String.format("Data sent: %s", article.toString()));
                         // Add article to the set to avoid duplicates
-                        processedArticles.add(articleTitle.substring(0,10));
+                        processedArticles.add(articleTitle.substring(0,20));
                     }
                 }
             }
             processedArticles.clear();
-            if (response.getNextPage() != null)
+            if (response != null && response.getNextPage() != null)
                 this.nextPage = response.getNextPage();
             else
                 LOGGER.info("next Page not found");
         }catch (RestClientException | JsonProcessingException e){
-            e.printStackTrace();
+            LOGGER.info(e.toString());
         }
     }
+
+    //convert to webclient
+    public void sendToSql() throws JsonProcessingException{
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("https://content.guardianapis.com/search")
+                .queryParam("api-key", guardianApiKey)
+                .queryParam("page", currGuardianPage++);
+        String url = builder.toUriString();
+        LOGGER.info(url);
+        try{
+            String response = restTemplate.getForObject(url, String.class);
+            GuardianResponse guardianResponse = objectMapper.readValue(response, GuardianResponse.class);
+            GuardianResponseData guardianResponseData = guardianResponse.getResponseData();
+            if(guardianResponseData != null && guardianResponseData.getArticles() != null){
+                List<GuardianArticle> articles = guardianResponseData.getArticles();
+                for(GuardianArticle article : articles){
+                    guardianArticleKafkaTemplate.send("sql-data", article);
+                    LOGGER.info(article.toString());
+                }
+            }
+        }catch (JsonProcessingException | RestClientException e){
+            LOGGER.info(e.toString());
+        }
+    }
+
 }

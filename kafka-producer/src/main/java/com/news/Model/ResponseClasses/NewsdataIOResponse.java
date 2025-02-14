@@ -1,9 +1,11 @@
 package com.news.Model.ResponseClasses;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.news.Model.Article;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NewsdataIOResponse {
     private int totalResults;
