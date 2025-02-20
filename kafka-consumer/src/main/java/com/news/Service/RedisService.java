@@ -21,7 +21,7 @@ public class RedisService {
     private RedisVectorStore vectorStore;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RedisService.class);
-    private final List<Article> articlesBuffer = new ArrayList<>();
+    private final HashSet<Article> articlesBuffer = new HashSet<>();
     private final int BATCH_SIZE = 10;
     private final int RESPONSE_SIZE = 10;
 

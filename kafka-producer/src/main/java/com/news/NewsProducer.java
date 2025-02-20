@@ -19,7 +19,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 @Service
@@ -71,7 +70,7 @@ public class NewsProducer {
                         redisArticlekafkaTemplate.send("redis-data", article);
                         LOGGER.info(String.format("Data sent: %s", article.toString()));
                         // Add article to the set to avoid duplicates
-                        processedArticles.add(articleTitle.substring(0,20));
+                        processedArticles.add(articleTitle.substring(0,Math.min(20, article.getTitle().length())));
                     }
                 }
             }
