@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -21,15 +22,18 @@ public class PgService {
     private PgRepository repository;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PgService.class);
+    private final List<PgEntity> buffer = new ArrayList<>();
+
 
     @KafkaListener(topics = "sql-data", groupId = "group1")
     public void addArticles(GuardianArticle article){
-        PgEntity entity = new PgEntity();
-        LOGGER.info(STR."article received : \{article.toString()}");
-        entity.setTitle(article.getWebTitle());
-        entity.setLink(article.getWebUrl());
+        PgEntity entity = new PgEntity(article.getWebTitle(), article.getWebUrl());
+        buffer.add(entity);
         LOGGER.info(entity.toString());
-        repository.save(entity);
+        if(buffer.size() >= 10) {
+            repository.saveAll(buffer);//bulk insert
+            buffer.clear();
+        }
     }
 
     public List<GuardianArticle> getPaginatedArticles(int pageNo, int pageSize){
@@ -37,7 +41,9 @@ public class PgService {
         Page<PgEntity> page = repository.findAll(p);
         List<PgEntity> content= page.getContent();
         return content.stream()
-                .map(entity -> {return new GuardianArticle(entity.getTitle(), entity.getLink());})
+                .map(entity -> {
+                    return new GuardianArticle(entity.getTitle(), entity.getLink());
+                })
                 .toList();
     }
 

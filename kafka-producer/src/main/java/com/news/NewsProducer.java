@@ -37,7 +37,7 @@ public class NewsProducer {
     @Autowired
     KafkaTemplate<String, GuardianArticle> guardianArticleKafkaTemplate;
 
-    Set<String> processedArticles = new HashSet<>();
+    HashSet<String> processedArticles = new HashSet<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(NewsProducer.class);
     RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -62,6 +62,12 @@ public class NewsProducer {
                 for(Article article: results){
                     String articleTitle = article.getTitle().substring(0,Math.min(20, article.getTitle().length()));
                     if (!processedArticles.contains(articleTitle)) {
+                        if(article.getDescription() != null) {
+                            article.setDescription(article
+                                    .getDescription()
+                                    .substring(0, Math.min(120, article.getDescription().length()))
+                                    + "...");
+                        }
                         redisArticlekafkaTemplate.send("redis-data", article);
                         LOGGER.info(String.format("Data sent: %s", article.toString()));
                         // Add article to the set to avoid duplicates

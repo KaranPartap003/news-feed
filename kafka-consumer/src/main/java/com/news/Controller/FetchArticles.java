@@ -2,6 +2,7 @@ package com.news.Controller;
 
 import com.news.Model.Article;
 import com.news.Model.GuardianArticle;
+import com.news.Model.ResponseArticle;
 import com.news.Model.UserRequest;
 import com.news.Service.PgService;
 import com.news.Service.RedisService;
@@ -15,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/news-feed")
 public class FetchArticles {
@@ -51,22 +53,33 @@ public class FetchArticles {
 
     //returns combined results of both, paginated articles and similar articles
     @PostMapping("/getUserArticles")
-    public ResponseEntity<List<Article>> fetch(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo,
+    public List<ResponseArticle> fetch(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo,
                                                @RequestParam(value = "pageSize", defaultValue = "5") Integer pageSize,
-                                               @RequestBody UserRequest request){
+                                               @RequestBody(required = false) UserRequest request){
         List<GuardianArticle> guardianArticles = pgService.getPaginatedArticles(pageNo, pageSize);
-        List<Article> articles = guardianArticles
+        List<ResponseArticle> responseArticles = guardianArticles
                 .stream()
-                .map(article -> {return new Article(article.getWebTitle(), null, article.getWebUrl());})
+                .map(article -> {
+                    return new ResponseArticle(article.getWebTitle()
+                            , "description not available"
+                            , article.getWebUrl()
+                            , false);
+                })
                 .collect(Collectors.toList());
 
         if(request != null) {
             List<Article> redisArticles = redisService.getRelevantArticles(request);
-            articles.addAll(redisArticles);
+            responseArticles.addAll(redisArticles
+                    .stream()
+                    .map(article -> {
+                        return new ResponseArticle(article.getTitle()
+                                , article.getDescription()
+                                , article.getLink(), true);}
+                    ).toList());
         }
 
-        Collections.shuffle(articles);
+        Collections.shuffle(responseArticles);
 
-        return ResponseEntity.ok(articles);
+        return responseArticles;
     }
 }
