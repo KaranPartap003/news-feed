@@ -28,7 +28,7 @@ This project ingests live news from multiple APIs, streams them through Kafka, p
   Spring Boot merges paginated and recommended lists, tagging articles with an `isRecommended` flag for frontend styling.
 
 - **Infinite Scroll Frontend**  
-  React.js with `react-infinite-scroll-component` dynamically loads mixed batches of general and recommended articles.
+  React.js with infinite scroll implementation which dynamically loads mixed batches of general and recommended articles.
 
 - **Secure Authentication** 
   Spring Security + JWT for stateless login and role-based access control.  (still in progress)
@@ -39,9 +39,9 @@ This project ingests live news from multiple APIs, streams them through Kafka, p
 
 - **Backend:** Java 17, Spring Boot, Spring Security, Apache Kafka  
 - **Vector Search:** Redis Vector Store, Ollama EmbeddingModel  
-- **Database:** PostgreSQL (JDBC + JSONB), Hibernate (JPA)  
-- **Frontend:** React.js, `react-infinite-scroll-component`  
-- **Authentication:** JWT, BCrypt  
+- **Database:** PostgreSQL (JDBC), Hibernate (JPA)  
+- **Frontend:** React.js, Node.js  
+- **Authentication:** JWT  
 - **Dev Tools:** Maven, npm, Docker (optional), Postman
 
 ---
