@@ -19,10 +19,10 @@ This project ingests live news from multiple APIs, streams them through Kafka, p
   Embed articles via Ollama (or custom model), store embeddings in Redis Vector Store, and perform k‑NN semantic searches for personalized recommendations.
 
 - **Efficient Pagination**  
-  Store “general news” in PostgreSQL with JSONB or structured columns, and expose paginated REST endpoints via Spring Data JPA.
+  Store “general news” in PostgreSQL with structured columns, and expose paginated REST endpoints via Spring Data JPA.
 
 - **User Activity Tracking**  
-  Record user interactions (views, clicks) to dynamically adjust recommendations on each login.
+  Record user interactions (clicks) to dynamically adjust recommendations on each login.
 
 - **Unified API Gateway**  
   Spring Boot merges paginated and recommended lists, tagging articles with an `isRecommended` flag for frontend styling.
