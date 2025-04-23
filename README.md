@@ -1,5 +1,8 @@
 # RAG-Based News Feed
 
+![structurizr-101531-Container-001](https://github.com/user-attachments/assets/42d156a9-747d-4583-90cd-4a15269e9c78)
+
+
 A scalable, real-time news aggregation platform combining Retrieval‑Augmented Generation (RAG), Apache Kafka streaming, Redis vector search, PostgreSQL pagination, and a React infinite‑scroll frontend to deliver personalized article recommendations.
 
 ---
