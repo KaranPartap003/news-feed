@@ -22,9 +22,10 @@
 		<developer/>
 	</developers>
     <modules>
-        <module>kafka-producer</module>
-		<module>kafka-consumer</module>
-	</modules>
+        <module>Producer_module</module>
+		<module>Consumer_module</module>
+        <module>Auth_module</module>
+    </modules>
     <scm>
 		<connection/>
 		<developerConnection/>
@@ -79,6 +80,7 @@
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka</artifactId>
 		</dependency>
+
 	</dependencies>
 
 	<build>
