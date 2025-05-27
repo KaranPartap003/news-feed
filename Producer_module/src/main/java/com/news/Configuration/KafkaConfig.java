@@ -14,14 +14,20 @@ public class KafkaConfig {
     @Value("${spring.kafka.producer.bootstrap-server}")
     private String server;
 
+    @Value("${kafka.recommendations.topic}")
+    private String redis_data;
+
+    @Value("${kafka.general.topic}")
+    private String sql_data;
+
     @Bean
     public NewTopic redisTopic(){
-        return TopicBuilder.name("redis-data").build();
+        return TopicBuilder.name(redis_data).build();
     }
 
     @Bean
     public NewTopic sqlTopic(){
-        return TopicBuilder.name("sql-data").build();
+        return TopicBuilder.name(sql_data).build();
     }
 
 }

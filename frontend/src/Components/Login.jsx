@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import AuthService from "./Services/AuthService.jsx";
@@ -39,6 +40,7 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
     const [successful, setSuccessful] = useState(false);
+    const navigate = useNavigate();
 
     const onChangeName = (e) =>{
         const name  = e.target.value;
@@ -50,7 +52,7 @@ export default function Login() {
         setPassword(password);
     }
 
-    const handleResigter = (e) => {
+    const handleLogin = (e) => {
         e.preventDefault();
 
         const isFormValid = userName.trim().length > 0 && password.length >= 6;
@@ -58,12 +60,15 @@ export default function Login() {
         if(isFormValid){
             AuthService.login(userName, password).then(
                 (response) => {
-                    setMessage(response.data.message);//validation received from backend
-                    console.log(response.data.message);
+                    setMessage(response.message);//validation received from backend
+                    console.log(response.accessToken);
+                    setTimeout(() => {
+                        navigate("/app")
+                    }, 3000);
                     setSuccessful(true);
                 },
                 (error) => {
-                    message(error.response.data.message);
+                    setMessage("Login failed, please check your credentials");
                     console.log(error.toString());
                     setSuccessful(false);
                 }
@@ -75,11 +80,11 @@ export default function Login() {
         }
     }
     return(
-        <Form onSubmit={handleResigter} className="card bg-opacity-75 border-0 mx-auto  p-4 mt-5 form-class" >
+        <Form onSubmit={handleLogin} className="card bg-opacity-75 border-0 mx-auto  p-4 mt-5 form-class" >
             <div className="mb-3">
             <h1>Login</h1>
             <br />
-            <label className="label">User name</label>
+            <label className="label">Username/Email</label>
             <Input
                 type="text"
                 className="form-control"
@@ -108,7 +113,7 @@ export default function Login() {
             <br />
             {message && (
               <div className={successful? "succeded" : "failed"} role="alert">
-                {message}
+                {message + "  \n redirecting to your feed"}
               </div>
             )}
         </Form>

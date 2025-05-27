@@ -1,14 +1,18 @@
 package com.news.Model;
 import jakarta.persistence.*;
-import org.apache.kafka.common.protocol.types.Field;
 
 @Entity
 @Table(name = "Users")
 public class Users {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    public Users(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
 
     private String username;
     private String password;

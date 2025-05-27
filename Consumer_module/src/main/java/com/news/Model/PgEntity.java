@@ -14,6 +14,8 @@ public class PgEntity {
 
     private String link;
 
+    //.. getters/setters methods
+
     public PgEntity() {
     }
 

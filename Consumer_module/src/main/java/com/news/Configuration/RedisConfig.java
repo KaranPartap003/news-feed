@@ -40,7 +40,7 @@ public class RedisConfig {
                 .builder()
                 .defaultOptions(
                         OllamaOptions.builder()
-                                .model(OllamaModel.NOMIC_EMBED_TEXT)
+                                .model(OllamaModel.MXBAI_EMBED_LARGE)
                                 .build()
                 )
                 .ollamaApi(new OllamaApi())
@@ -58,7 +58,7 @@ public class RedisConfig {
                         RedisVectorStore.MetadataField.text("link"),
                         RedisVectorStore.MetadataField.text("description")
                 )
-                .vectorAlgorithm(RedisVectorStore.Algorithm.HSNW)
+                .vectorAlgorithm(RedisVectorStore.Algorithm.FLAT)
                 .build();
     }
 }

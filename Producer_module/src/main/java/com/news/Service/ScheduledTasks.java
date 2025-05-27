@@ -27,7 +27,7 @@ public class ScheduledTasks {
     }
 
     //rate limit = 100/day
-    @Scheduled(fixedRate = 864000) //approx 100 calls per day
+    @Scheduled(fixedRate = 2000) // (864000)approx 100 calls per day
     public void fetchGuardian() throws JsonProcessingException {
         try {
             producer.sendToSql();

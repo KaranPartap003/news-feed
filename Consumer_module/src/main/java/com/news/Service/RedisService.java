@@ -25,7 +25,7 @@ public class RedisService {
     private final int BATCH_SIZE = 10;
 
 
-    @KafkaListener(topics = "redis-data", groupId = "group1")
+    @KafkaListener(topics = "recommended_articles", groupId = "group1")
     public void addArticles(Article article){
         LOGGER.info(String.format("article received : %s", article.toString()));
         articlesBuffer.add(article);

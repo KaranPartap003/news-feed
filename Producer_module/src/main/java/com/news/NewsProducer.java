@@ -30,6 +30,12 @@ public class NewsProducer {
     @Value("${guardian.api-key}")
     private String guardianApiKey;
 
+    @Value("${kafka.recommendations.topic}")
+    private String recommended_articles;
+
+    @Value("${kafka.general.topic}")
+    private String general_articles;
+
     @Autowired
     KafkaTemplate<String, Article> redisArticlekafkaTemplate;
 
@@ -45,6 +51,7 @@ public class NewsProducer {
     private int currGuardianPage = 1;
 
     //convert to webclient
+    //hide the url in app.props...
     public void sendToRedis() throws JsonProcessingException {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("https://newsdata.io/api/1/latest?&language=en")
                                     .queryParam("apikey", newsdataApiKey);
@@ -67,7 +74,7 @@ public class NewsProducer {
                                     .substring(0, Math.min(120, article.getDescription().length()))
                                     + "...");
                         }
-                        redisArticlekafkaTemplate.send("redis-data", article);
+                        redisArticlekafkaTemplate.send(recommended_articles, article);
                         LOGGER.info(String.format("Recommended articles: %s", article.toString()));
                         // Add article to the set to avoid duplicates
                         processedArticles.add(articleTitle.substring(0,Math.min(20, article.getTitle().length())));
@@ -85,6 +92,7 @@ public class NewsProducer {
     }
 
     //convert to webclient
+    //hide the url in app.props...
     public void sendToSql() throws JsonProcessingException{
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("https://content.guardianapis.com/search")
                 .queryParam("api-key", guardianApiKey)
@@ -98,8 +106,8 @@ public class NewsProducer {
             if(guardianResponseData != null && guardianResponseData.getArticles() != null){
                 List<GuardianArticle> articles = guardianResponseData.getArticles();
                 for(GuardianArticle article : articles){
-                    guardianArticleKafkaTemplate.send("general articles : ", article);
-                    LOGGER.info(article.toString());
+                    guardianArticleKafkaTemplate.send(general_articles, article);
+                    LOGGER.info(String.format("general_articles: %s", article.toString()));
                 }
             }
         }catch (JsonProcessingException | RestClientException e){

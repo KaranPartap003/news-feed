@@ -1,6 +1,5 @@
-package com.news.Service;
+package com.news.Model;
 
-import com.news.Model.Users;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,7 +11,7 @@ public class UserDetailsImpl implements UserDetails {
 
     private Users user;
 
-    public UserDetailsImpl(Users user){
+    public UserDetailsImpl(Users user) {
         this.user = user;
     }
 

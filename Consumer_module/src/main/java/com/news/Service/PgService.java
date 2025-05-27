@@ -6,6 +6,7 @@ import com.news.Repository.PgRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,11 +22,12 @@ public class PgService {
     @Autowired
     private PgRepository repository;
 
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PgService.class);
     private final List<PgEntity> buffer = new ArrayList<>();
 
 
-    @KafkaListener(topics = "sql-data", groupId = "group1")
+    @KafkaListener(topics = "general_articles", groupId = "group1")
     public void addArticles(GuardianArticle article){
         PgEntity entity = new PgEntity(article.getWebTitle(), article.getWebUrl());
         buffer.add(entity);
@@ -33,6 +35,7 @@ public class PgService {
         if(buffer.size() >= 10) {
             repository.saveAll(buffer);//bulk insert
             buffer.clear();
+            LOGGER.info("data sent to postgres");
         }
     }
 

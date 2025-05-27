@@ -1,4 +1,3 @@
-import React from 'react'
 
 function NewsCard({article, onInteract}) {
   return (
