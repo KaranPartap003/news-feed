@@ -33,7 +33,7 @@ build/
 .vscode/
 
 ### Module resources to ignore ###
-/producer_module/src/main/resources/
-/Consumer_module/src/main/resources/
-/Auth_module/src/main/resource/
+/producer_module/src/main/resources/application.properties
+/Consumer_module/src/main/resources/application.properties
+/Auth_module/src/main/resources/application.properties
 
